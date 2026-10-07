@@ -1,0 +1,239 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Vault &amp; Vine</title>
+<meta name="description" content="Vault & Vine — your family's wealth, guarded and growing.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%23177a5c'/%3E%3Cpath d='M16 25c0-6 1-11 7-15M16 19c-2-3-5-4-8-4 0 4 3 6 8 4z' fill='none' stroke='%23fff' stroke-width='2.4' stroke-linecap='round'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/styles.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.116.0/dist/umd/supabase.js"></script>
+<script src="assets/config.js"></script>
+</head>
+<body>
+
+<!-- Loading -->
+<div class="loader" id="loader"><div><div class="dot3"><span></span><span></span><span></span></div>Opening your vault…</div></div>
+
+<!-- Sign-in -->
+<div class="auth hidden" id="authScreen">
+  <div class="auth-hero">
+    <div class="brand"><div class="logo" data-logo></div>Vault <span class="amp">&amp;</span> Vine</div>
+    <div>
+      <h2>Your family's wealth, guarded and growing.</h2>
+      <p>Track stocks, retirement, deposits, property and gold across the US and India — in one private dashboard.</p>
+      <div class="points">
+        <div>🔒 Private to your login — nobody else can see your data</div>
+        <div>💱 Live USD ⇄ INR and gold / silver prices</div>
+        <div>📈 Net worth trend, allocation and liquidity at a glance</div>
+      </div>
+    </div>
+    <div class="sub" style="color:rgba(255,255,255,.7)">© Vault &amp; Vine</div>
+    <div class="ring"></div>
+  </div>
+  <div class="auth-panel">
+    <div class="auth-card">
+      <h1>Welcome</h1>
+      <div class="sub">Sign in to open your vault. New here? Signing in creates your account.</div>
+      <button class="btn google" id="googleBtn">
+        <svg width="18" height="18" viewBox="0 0 48 48"><path fill="#FFC107" d="M43.6 20.5H42V20H24v8h11.3C33.7 32.7 29.2 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.8 1.2 7.9 3.1l5.7-5.7C34 6.1 29.3 4 24 4 12.9 4 4 12.9 4 24s8.9 20 20 20 20-8.9 20-20c0-1.3-.1-2.4-.4-3.5z"/><path fill="#FF3D00" d="M6.3 14.7l6.6 4.8C14.7 15.1 19 12 24 12c3.1 0 5.8 1.2 7.9 3.1l5.7-5.7C34 6.1 29.3 4 24 4 16.3 4 9.7 8.3 6.3 14.7z"/><path fill="#4CAF50" d="M24 44c5.2 0 9.9-2 13.4-5.2l-6.2-5.2C29.2 35.1 26.7 36 24 36c-5.2 0-9.6-3.3-11.3-7.9l-6.5 5C9.5 39.6 16.2 44 24 44z"/><path fill="#1976D2" d="M43.6 20.5H42V20H24v8h11.3c-.8 2.2-2.2 4.2-4.1 5.6l6.2 5.2C37 39.2 44 34 44 24c0-1.3-.1-2.4-.4-3.5z"/></svg>
+        Continue with Google
+      </button>
+      <div class="divider">or use email</div>
+      <form id="emailForm">
+        <input class="inp" id="emailInput" type="email" placeholder="you@example.com" autocomplete="email" required>
+        <button class="btn primary" type="submit" id="emailBtn">Email me a sign-in link</button>
+      </form>
+      <div class="auth-msg" id="authMsg"></div>
+      <div class="fine">Your data is stored in a private, encrypted Supabase database. Row-level security means each account can only read and change its own records.</div>
+    </div>
+  </div>
+</div>
+
+<!-- Database not set up -->
+<div class="setup card hidden" id="setupScreen">
+  <h2>One more step: set up the database</h2>
+  <p class="sub">You're signed in, but the Vault &amp; Vine tables don't exist in this Supabase project yet.</p>
+  <ol>
+    <li>Open your project in the Supabase dashboard → <b>SQL Editor</b> → <b>New query</b>.</li>
+    <li>Paste the contents of <code>supabase/migrations/20261007000000_vault_vine_init.sql</code> and click <b>Run</b>.</li>
+    <li>Come back here and reload.</li>
+  </ol>
+  <div class="controls"><button class="btn primary" onclick="location.reload()">Reload</button><button class="btn" data-act="signout">Sign out</button></div>
+</div>
+
+<!-- App -->
+<div class="app hidden" id="appScreen">
+  <aside>
+    <div class="brand"><div class="logo" data-logo></div>Vault <span class="amp">&amp;</span> Vine</div>
+    <div id="navSide"></div>
+    <div class="userbox">
+      <div class="avatar" id="avatar"></div>
+      <div class="who"><b id="userName"></b><span id="userEmail"></span></div>
+      <button class="iconbtn" data-act="signout" title="Sign out"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4M16 17l5-5-5-5M21 12H9"/></svg></button>
+    </div>
+  </aside>
+  <main>
+    <div class="topbar">
+      <div><h1 id="pageTitle">Dashboard</h1><div class="sub" id="pageSub"></div></div>
+      <div class="controls">
+        <div class="ticker" id="ticker" title="Market rates — click to configure"></div>
+        <div class="seg" id="ccySeg"><button data-c="USD">$ USD</button><button data-c="INR">₹ INR</button></div>
+        <button class="iconbtn" id="themeBtn" title="Toggle theme"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.8A9 9 0 1111.2 3a7 7 0 009.8 9.8z"/></svg></button>
+      </div>
+    </div>
+
+    <!-- DASHBOARD -->
+    <section class="view" id="v-dashboard">
+      <div class="card hidden" id="emptyState"><div class="emptystate">
+        <div class="big">🌱</div><h2>Your vault is empty</h2>
+        <div class="sub">Add your first holding, or import the backup you exported from the prototype dashboard.</div>
+        <div class="controls"><button class="btn primary" data-act="add-asset">+ Add holding</button><label class="btn">Import backup (JSON)<input type="file" accept=".json" data-import hidden></label></div>
+      </div></div>
+      <div id="dashBody">
+      <div class="kpis" id="kpis"></div>
+      <div class="grid">
+        <div class="card panel span-8">
+          <div class="ph"><div><h3>Net worth over time</h3><div class="sub">From saved snapshots — take one each month to see the trend</div></div><button class="btn sm" data-act="snapshot">+ Snapshot</button></div>
+          <div class="chart" id="trendBox"><canvas id="chTrend"></canvas><div id="trendEmpty" style="position:absolute;inset:0;display:none;place-items:center;text-align:center;color:var(--muted)"><div><div style="font-size:28px">📈</div><b style="color:var(--text)">Your trend starts here</b><br>Click <b>+ Snapshot</b> today, then again next month after updating balances.</div></div></div>
+        </div>
+        <div class="card panel span-4">
+          <div class="ph"><div><h3>Assets vs liabilities</h3><div class="sub" id="dtaSub"></div></div></div>
+          <div class="chart"><canvas id="chAL"></canvas></div>
+        </div>
+        <div class="card panel span-6">
+          <div class="ph"><div><h3>Allocation by asset type</h3><div class="sub">Share of total assets at current value</div></div></div>
+          <div class="donut-wrap"><div class="chart"><canvas id="chType"></canvas></div><div class="legend" id="lgType"></div></div>
+        </div>
+        <div class="card panel span-6">
+          <div class="ph"><div><h3>US vs India</h3><div class="sub">By holding currency</div></div></div>
+          <div class="donut-wrap"><div class="chart"><canvas id="chGeo"></canvas></div><div class="legend" id="lgGeo"></div></div>
+        </div>
+        <div class="card panel span-7">
+          <div class="ph"><div><h3>Top 10 holdings</h3><div class="sub" id="topSub"></div></div></div>
+          <div class="chart tall"><canvas id="chTop"></canvas></div>
+        </div>
+        <div class="card panel span-5">
+          <div class="ph"><div><h3>By owner</h3><div class="sub">Assets held per person</div></div></div>
+          <div class="chart tall"><canvas id="chOwner"></canvas></div>
+        </div>
+        <div class="card panel span-6">
+          <div class="ph"><div><h3>Precious metals</h3><div class="sub" id="metalSub"></div></div><button class="btn sm" data-view="settings">Prices</button></div>
+          <div id="metalPanel"></div>
+        </div>
+        <div class="card panel span-6">
+          <div class="ph"><div><h3>Liquidity ladder</h3><div class="sub">How quickly your assets could become cash</div></div></div>
+          <div class="bar-track" id="liqBar" style="height:16px"></div>
+          <div class="legend" id="lgLiq" style="margin-top:14px"></div>
+        </div>
+      </div>
+      </div>
+    </section>
+
+    <!-- HOLDINGS -->
+    <section class="view" id="v-holdings">
+      <div class="notice" id="holdNotice" style="display:none"></div>
+      <div class="card panel">
+        <div class="toolbar">
+          <input class="search" id="hSearch" placeholder="Search holdings…">
+          <select class="filter" id="hType"></select>
+          <select class="filter" id="hCcy"><option value="">All currencies</option><option>USD</option><option>INR</option></select>
+          <select class="filter" id="hOwner"></select>
+          <button class="btn primary" data-act="add-asset">+ Add holding</button>
+        </div>
+        <div class="table-wrap"><table id="hTable"></table></div>
+      </div>
+    </section>
+
+    <!-- LIABILITIES -->
+    <section class="view" id="v-liabilities">
+      <div class="notice" id="liabNotice"></div>
+      <div class="kpis" id="liabKpis"></div>
+      <div class="card panel">
+        <div class="toolbar"><input class="search" id="lSearch" placeholder="Search loans & cards…"><button class="btn primary" data-act="add-liab">+ Add loan / card</button></div>
+        <div class="table-wrap"><table id="lTable"></table></div>
+      </div>
+    </section>
+
+    <!-- HISTORY -->
+    <section class="view" id="v-history">
+      <div class="card panel">
+        <div class="ph"><div><h3>Snapshots</h3><div class="sub">A snapshot freezes today's totals so you can track progress month to month.</div></div><button class="btn primary" data-act="snapshot">+ Take snapshot now</button></div>
+        <div class="table-wrap"><table id="sTable"></table></div>
+      </div>
+    </section>
+
+    <!-- SETTINGS -->
+    <section class="view" id="v-settings">
+      <div class="card panel" style="margin-bottom:14px">
+        <div class="ph">
+          <div><h3>Market rates</h3><div class="sub">Used to convert currencies and value Gold, Silver &amp; Metal holdings by weight. Each rate can update from an API or be typed in manually.</div></div>
+          <div class="controls"><label class="sub" style="display:flex;gap:6px;align-items:center">Show metal prices in
+            <span class="seg sm" id="metalCcySeg"><button data-mc="INR">₹</button><button data-mc="USD">$</button></span></label>
+            <button class="btn primary" data-act="refresh" id="refreshBtn"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M21 12a9 9 0 11-3-6.7L21 8"/><path d="M21 3v5h-5"/></svg>Refresh all</button></div>
+        </div>
+        <div id="ratesBox"></div>
+      </div>
+      <div class="grid">
+        <div class="card panel span-6">
+          <h3>Profile &amp; household</h3>
+          <p class="sub">Your display name, and the people you can assign holdings to.</p>
+          <div class="field"><label class="sub">Display name</label><input class="inp" id="profName" maxlength="80"></div>
+          <label class="sub" style="font-weight:600;font-size:12px">Household members</label>
+          <div class="chips" id="ownerChips"></div>
+          <form id="ownerForm" class="controls"><input class="inp" id="ownerInput" maxlength="40" placeholder="Add a person, e.g. Thyagu" style="flex:1"><button class="btn sm" type="submit">Add</button></form>
+        </div>
+        <div class="card panel span-6">
+          <h3>Backup &amp; import</h3>
+          <p class="sub">Import the JSON backup from the prototype dashboard (Settings → Export JSON there), or export your vault any time.</p>
+          <div class="controls">
+            <label class="btn primary">Import backup (JSON)<input type="file" accept=".json" data-import hidden></label>
+            <button class="btn" data-act="export-json">Export JSON</button>
+            <button class="btn" data-act="export-csv">Export CSV</button>
+          </div>
+          <hr style="border:0;border-top:1px solid var(--border);margin:18px 0">
+          <h3>Danger zone</h3>
+          <p class="sub">Permanently delete every holding, snapshot and rate setting in your vault.</p>
+          <button class="btn danger" data-act="wipe">Delete all my data</button>
+        </div>
+      </div>
+    </section>
+  </main>
+</div>
+<nav class="mobile-nav hidden" id="navMobile"></nav>
+
+<dialog id="dlg"><form class="dlg" id="dlgForm" method="dialog">
+  <h3 id="dlgTitle">Add holding</h3>
+  <div class="field"><label>Name</label><input name="entity" required maxlength="120"></div>
+  <div class="two">
+    <div class="field" id="fType"><label>Type</label><select name="type"></select></div>
+    <div class="field"><label>Owner</label><select name="owner"></select></div>
+  </div>
+  <div class="metalbox" id="metalBox">
+    <div class="field" id="fMetal"><label>Metal</label><select name="metal"></select></div>
+    <div class="three">
+      <div class="field"><label>Quantity</label><input name="qty" type="number" step="any" min="0" placeholder="e.g. 250"></div>
+      <div class="field"><label>Unit</label><select name="unit"></select></div>
+      <div class="field"><label>Purity</label><select name="purity"></select></div>
+    </div>
+    <div class="preview" id="metalPreview"></div>
+  </div>
+  <div class="two">
+    <div class="field"><label id="amtLabel">Amount</label><input name="amount" type="number" step="0.01" min="0" placeholder="0"></div>
+    <div class="field"><label>Currency</label><select name="currency"><option>USD</option><option>INR</option></select></div>
+  </div>
+  <div class="dlg-actions">
+    <button type="button" class="btn danger" id="dlgDelete" style="margin-right:auto">Delete</button>
+    <button type="button" class="btn" id="dlgCancel">Cancel</button>
+    <button type="submit" class="btn primary" id="dlgSave">Save</button>
+  </div>
+</form></dialog>
+<div class="toast" id="toast"></div>
+<div class="saving" id="saving">Saving…</div>
+
+<script src="assets/app.js"></script>
+</body>
+</html>

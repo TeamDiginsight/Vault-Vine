@@ -1,0 +1,9 @@
+.DS_Store
+node_modules/
+.env
+.env.*
+*.local
+# personal backups exported from the app — never commit financial data
+*-backup*.json
+vault-vine-*.json
+portfolio-*.json

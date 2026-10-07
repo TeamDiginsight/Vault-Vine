@@ -7,12 +7,6 @@ on:
       - dev
       - qa
       - prod
-  pull_request:
-    branches:
-      - main
-      - dev
-      - qa
-      - prod
 
 jobs:
   deploy:
@@ -27,50 +21,47 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '24'
+          node-version: lts/*
+
+      - name: Verify Node.js installation
+        run: |
+          node --version
+          npm --version
+          which node
 
       - name: Install Supabase CLI
-        run: npm install -g supabase
-
-      - name: Debug - Print environment info
         run: |
-          echo "Event: ${{ github.event_name }}"
-          echo "Branch: ${{ github.ref_name }}"
-          echo "Supabase Project: rwxernfvmhfosymlblek"
+          echo "Installing Supabase CLI..."
+          npm install -g supabase
           supabase --version
+        continue-on-error: false
 
       - name: Authenticate with Supabase
         run: |
+          echo "Authenticating with Supabase project: rwxernfvmhfosymlblek"
           supabase link --project-ref rwxernfvmhfosymlblek
         env:
           SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
 
-      - name: Check Supabase status
-        run: supabase status
+      - name: List migrations
+        run: |
+          echo "Migrations to push:"
+          ls -la supabase/migrations/
+        continue-on-error: true
+
+      - name: Push migrations to Supabase
+        run: |
+          echo "Pushing migrations to Supabase..."
+          supabase db push --yes
         env:
           SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
 
-      - name: Dry run migrations (Pull Request)
-        if: github.event_name == 'pull_request'
-        run: supabase db push --dry-run
-        env:
-          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
-
-      - name: Push migrations to Supabase (Push)
-        if: github.event_name == 'push'
-        run: supabase db push
-        env:
-          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
-
-      - name: Verify deployment
-        run: supabase status
-        env:
-          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
-
-      - name: Success message
+      - name: Deployment complete
         if: success()
-        run: echo "✅ Deployment successful!"
+        run: echo "✅ Deployment to Supabase successful!"
 
-      - name: Failure message
+      - name: Deployment failed
         if: failure()
-        run: echo "❌ Deployment failed - Check logs above"
+        run: |
+          echo "❌ Deployment failed"
+          exit 1

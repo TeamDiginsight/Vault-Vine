@@ -115,3 +115,8 @@ Edit the created file in `supabase/migrations/` and commit to trigger auto-deplo
 - [Supabase CLI Docs](https://supabase.com/docs/guides/cli)
 - [GitHub Actions Docs](https://docs.github.com/en/actions)
 - [Git Push Documentation](https://git-scm.com/docs/git-push)
+
+## 🚀 Deployment Status
+
+Auto-deploy configured for all branches (main, dev, qa, prod).
+Check GitHub Actions tab for deployment logs and status.

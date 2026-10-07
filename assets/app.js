@@ -630,6 +630,12 @@ async function start(user){
 }
 function signedOut(){ startedFor=null; S=null; Object.values(charts).forEach(c=>c.destroy()); show("auth"); }
 
+// Banner close handler
+document.addEventListener("DOMContentLoaded",()=>{
+  const bannerClose=document.getElementById("bannerClose");
+  if(bannerClose) bannerClose.addEventListener("click",()=>document.getElementById("topBanner").style.display="none");
+});
+
 (function boot(){
   const th=lsGet("vv.theme"); if(th) document.documentElement.dataset.theme=th;
   const params=new URLSearchParams(location.search+"&"+location.hash.slice(1));

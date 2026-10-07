@@ -382,8 +382,9 @@ function apiFields(key,c,isMetal){
 }
 function renderSettings(){
   $("#pageSub").textContent="Market rates, household, backup";
-  const mc=S.profile.metal_currency, dec=mc==="USD"?2:0, fx=R().fx;
+  const mc=S.profile.metal_currency, dec=mc==="USD"?2:0, fx=R().fx, pc=S.profile.display_currency||"USD";
   document.querySelectorAll("#metalCcySeg button").forEach(b=>b.classList.toggle("on",b.dataset.mc===mc));
+  document.querySelectorAll("#primaryCcySeg button").forEach(b=>b.classList.toggle("on",b.dataset.pc===pc));
   $("#refreshBtn").classList.toggle("spin",refreshing);
   let html=`<div class="rate-row">
       <div class="rate-name"><span class="chip" style="background:${css("--c1")}"></span>USD → INR</div>
@@ -444,6 +445,10 @@ $("#ratesBox").addEventListener("change",async e=>{
 $("#profName").addEventListener("change",async e=>{
   S.profile.display_name=e.target.value.trim().slice(0,80); render();
   await q(sb.from("profiles").update({display_name:S.profile.display_name}).eq("id",S.user.id),"save name").then(()=>toast("Saved")).catch(()=>{});
+});
+document.addEventListener("click",e=>{
+  if(e.target.closest("#primaryCcySeg button")){ const pc=e.target.dataset.pc; if(pc) saveProfilePref({display_currency:pc}).then(()=>toast("Currency updated")); }
+  if(e.target.closest("#metalCcySeg button")){ const mc=e.target.dataset.mc; if(mc) saveProfilePref({metal_currency:mc}).then(()=>toast("Metal currency updated")); }
 });
 async function saveOwners(list){ S.profile.owners=list; render(); await q(sb.from("profiles").update({owners:list}).eq("id",S.user.id),"save household").catch(()=>{}); }
 $("#ownerForm").addEventListener("submit",e=>{ e.preventDefault(); const v=$("#ownerInput").value.trim().slice(0,40); if(!v||S.profile.owners.includes(v)) return; $("#ownerInput").value=""; saveOwners([...S.profile.owners,v]); });

@@ -4,9 +4,15 @@ on:
   push:
     branches:
       - main
+      - dev
+      - qa
+      - prod
   pull_request:
     branches:
       - main
+      - dev
+      - qa
+      - prod
 
 jobs:
   deploy:

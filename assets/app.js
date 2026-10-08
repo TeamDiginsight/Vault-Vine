@@ -210,9 +210,13 @@ const navHTML=()=>VIEWS.map(([id,l,p])=>`<button class="nav${id===current?" acti
 function go(v){
   current=v; lsSet("vv.view",v);
   document.querySelectorAll(".view").forEach(s=>s.classList.toggle("active",s.id==="v-"+v));
-  $("#navSide").innerHTML=navHTML(); $("#navMobile").innerHTML=navHTML();
+  const navSide = $("#navSide");
+  const navMobile = $("#navMobile");
+  if(navSide) navSide.innerHTML=navHTML();
+  if(navMobile) navMobile.innerHTML=navHTML();
   document.querySelectorAll(".nav-btn").forEach(b=>b.classList.toggle("active",b.dataset.view===v));
-  $("#pageTitle").textContent=VIEWS.find(x=>x[0]===v)[1];
+  const pageTitle = $("#pageTitle");
+  if(pageTitle) pageTitle.textContent=VIEWS.find(x=>x[0]===v)[1];
   window.scrollTo(0,0); render();
 }
 

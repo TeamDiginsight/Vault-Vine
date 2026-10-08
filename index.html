@@ -6,6 +6,12 @@
 <title>Vault &amp; Vine</title>
 <meta name="description" content="Vault & Vine — your family's wealth, guarded and growing.">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%23177a5c'/%3E%3Cpath d='M16 25c0-6 1-11 7-15M16 19c-2-3-5-4-8-4 0 4 3 6 8 4z' fill='none' stroke='%23fff' stroke-width='2.4' stroke-linecap='round'/%3E%3C/svg%3E">
+<link rel="manifest" href="/manifest.json">
+<meta name="theme-color" content="#0f2a4d">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Vault & Vine">
+<link rel="apple-touch-icon" href="/icons/icon-192.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="assets/styles.css">
@@ -331,5 +337,37 @@
 
 <script src="assets/stocks.js"></script>
 <script src="assets/app.js"></script>
+
+<!-- PWA Service Worker Registration -->
+<script>
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('/sw.js')
+      .then(reg => {
+        console.log('✅ Service Worker registered successfully');
+        // Check for updates regularly
+        setInterval(() => {
+          reg.update();
+        }, 60000); // Check every minute
+      })
+      .catch(err => {
+        console.log('❌ Service Worker registration failed:', err);
+      });
+  });
+
+  // Listen for updates
+  navigator.serviceWorker.addEventListener('controllerchange', () => {
+    console.log('🔄 App updated - reload to get latest version');
+  });
+}
+
+// Install prompt handler (shows "Install App" popup)
+let deferredPrompt;
+window.addEventListener('beforeinstallprompt', (e) => {
+  e.preventDefault();
+  deferredPrompt = e;
+  console.log('📱 Install prompt available');
+});
+</script>
 </body>
 </html>

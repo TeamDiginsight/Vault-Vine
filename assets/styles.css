@@ -1,30 +1,30 @@
 /* Vault & Vine — styles */
 
 :root{
-  --bg:#0a0e1a; --surface:#1a1f2e; --surface-2:#252d3d; --border:#3a4556;
-  --text:#e8ecf1; --muted:#8b9bb4; --accent:#0dd9ff; --accent-soft:#0dd9ff1a; --brand-1:#0066cc; --brand-2:#00d4ff;
+  --bg:#f8fbff; --surface:#ffffff; --surface-2:#f0f7ff; --border:#e0ecf7;
+  --text:#1e293b; --muted:#64748b; --accent:#16a34a; --accent-soft:#dcfce7; --brand-1:#059669; --brand-2:#10b981;
   --pos:#10b981; --neg:#ef4444; --warn:#f59e0b;
-  --c1:#3b82f6; --c2:#00d4ff; --c3:#0ea5e9; --c4:#f97316; --c5:#8b5cf6; --c6:#ec4899; --c7:#64748b;
+  --c1:#ff6b4a; --c2:#fbbf24; --c3:#10b981; --c4:#059669; --c5:#8b5cf6; --c6:#ff9f43; --c7:#0ea5e9;
   --gold:#fbbf24; --silver:#cbd5e1; --plat:#d7ccc8;
-  --shadow:0 1px 3px rgba(0,0,0,.3),0 8px 24px rgba(0,0,0,.35);
+  --shadow:0 4px 12px rgba(0,0,0,.08),0 1px 3px rgba(0,0,0,.04);
 }
 @media (prefers-color-scheme: dark){
   :root:not([data-theme="light"]){
-    --bg:#0a0e1a; --surface:#1a1f2e; --surface-2:#252d3d; --border:#3a4556;
-    --text:#e8ecf1; --muted:#8b9bb4; --accent:#0dd9ff; --accent-soft:#0dd9ff1a; --brand-1:#0066cc; --brand-2:#00d4ff;
+    --bg:#0f172a; --surface:#1e293b; --surface-2:#334155; --border:#475569;
+    --text:#f1f5f9; --muted:#94a3b8; --accent:#10b981; --accent-soft:#dcfce71a; --brand-1:#059669; --brand-2:#10b981;
     --pos:#10b981; --neg:#f87171; --warn:#fbbf24;
-    --c1:#60a5fa; --c2:#00d4ff; --c3:#38bdf8; --c4:#fb923c; --c5:#a78bfa; --c6:#f472b6; --c7:#cbd5e1;
+    --c1:#ff6b4a; --c2:#fbbf24; --c3:#10b981; --c4:#059669; --c5:#a78bfa; --c6:#ff9f43; --c7:#38bdf8;
     --gold:#fbbf24; --silver:#cbd5e1; --plat:#d7ccc8;
-    --shadow:0 1px 2px rgba(0,0,0,.3),0 8px 24px rgba(0,0,0,.35);
+    --shadow:0 1px 2px rgba(0,0,0,.3),0 8px 24px rgba(0,0,0,.25);
   }
 }
 :root[data-theme="dark"]{
-  --bg:#0a0e1a; --surface:#1a1f2e; --surface-2:#252d3d; --border:#3a4556;
-  --text:#e8ecf1; --muted:#8b9bb4; --accent:#0dd9ff; --accent-soft:#0dd9ff1a; --brand-1:#0066cc; --brand-2:#00d4ff;
+  --bg:#0f172a; --surface:#1e293b; --surface-2:#334155; --border:#475569;
+  --text:#f1f5f9; --muted:#94a3b8; --accent:#10b981; --accent-soft:#dcfce71a; --brand-1:#059669; --brand-2:#10b981;
   --pos:#10b981; --neg:#f87171; --warn:#fbbf24;
-  --c1:#60a5fa; --c2:#00d4ff; --c3:#38bdf8; --c4:#fb923c; --c5:#a78bfa; --c6:#f472b6; --c7:#cbd5e1;
+  --c1:#ff6b4a; --c2:#fbbf24; --c3:#10b981; --c4:#059669; --c5:#a78bfa; --c6:#ff9f43; --c7:#38bdf8;
   --gold:#fbbf24; --silver:#cbd5e1; --plat:#d7ccc8;
-  --shadow:0 1px 2px rgba(0,0,0,.3),0 8px 24px rgba(0,0,0,.35);
+  --shadow:0 1px 2px rgba(0,0,0,.3),0 8px 24px rgba(0,0,0,.25);
 }
 *{box-sizing:border-box}
 html,body{margin:0}
@@ -54,9 +54,10 @@ h1{font-size:22px;margin:0;letter-spacing:-.01em}
 .ticker{display:flex;align-items:center;gap:12px;background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:6px 6px 6px 12px;font-size:12.5px;color:var(--muted);cursor:pointer}
 .ticker b{color:var(--text);font-weight:600}
 .ticker .sep{width:1px;height:16px;background:var(--border)}
-.btn{white-space:nowrap;border:1px solid var(--border);background:var(--surface);padding:8px 14px;border-radius:10px;cursor:pointer;font-weight:600;display:inline-flex;gap:6px;align-items:center}
-.btn:hover{border-color:var(--accent)}
-.btn.primary{background:var(--accent);border-color:var(--accent);color:#fff}
+.btn{white-space:nowrap;border:1px solid var(--border);background:var(--surface);padding:8px 14px;border-radius:10px;cursor:pointer;font-weight:600;display:inline-flex;gap:6px;align-items:center;transition:.2s}
+.btn:hover{border-color:#ff6b4a;background:rgba(255,107,74,.08)}
+.btn.primary{background:#ff6b4a;border-color:#ff6b4a;color:#fff;box-shadow:0 4px 12px rgba(255,107,74,.3)}
+.btn.primary:hover{background:#ff5533;box-shadow:0 6px 16px rgba(255,107,74,.4)}
 .btn:disabled{opacity:.6;cursor:default}
 .btn.danger{color:var(--neg)}
 .btn.sm{padding:5px 10px;font-size:12px}
@@ -70,7 +71,7 @@ h1{font-size:22px;margin:0;letter-spacing:-.01em}
 .kpi .label{color:var(--muted);font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:.04em}
 .kpi .value{font-size:22px;font-weight:700;margin-top:6px;letter-spacing:-.02em}
 .kpi .hint{font-size:12px;color:var(--muted);margin-top:4px}
-.kpi.hero{background:linear-gradient(135deg,var(--brand-1),var(--brand-2));color:#fff;border:0}
+.kpi.hero{background:linear-gradient(135deg,#059669,#10b981);color:#fff;border:0;box-shadow:0 4px 12px rgba(16,185,129,.25)}
 .kpi.hero .label,.kpi.hero .hint{color:rgba(255,255,255,.8)}
 .pos{color:var(--pos)}.neg{color:var(--neg)}.warn{color:var(--warn)}
 .grid{display:grid;grid-template-columns:repeat(12,1fr);gap:14px}
@@ -172,11 +173,11 @@ dialog::backdrop{background:rgba(10,14,25,.5);backdrop-filter:blur(2px)}
 
 /* ---------- branded banner ---------- */
 .top-banner{
-  background:linear-gradient(135deg,#003d82 0%,#0066cc 25%,#0099ff 50%,#00d4ff 75%,#0099ff 100%);
+  background:linear-gradient(135deg,#059669 0%,#16a34a 30%,#fbbf24 60%,#ff9f43 85%,#ff6b4a 100%);
   background-attachment:fixed;
   background-size:400% 400%;
   color:#fff;padding:16px 28px;display:flex;align-items:center;justify-content:space-between;gap:20px;
-  box-shadow:0 8px 32px rgba(0,212,255,.25);
+  box-shadow:0 8px 32px rgba(255,107,74,.25);
   position:sticky;top:0;z-index:50;
   overflow:hidden;
   position:relative;
@@ -213,7 +214,7 @@ dialog::backdrop{background:rgba(10,14,25,.5);backdrop-filter:blur(2px)}
 
 /* ---------- auth screen ---------- */
 .auth{height:100vh;display:grid;grid-template-columns:1fr 1fr;background:var(--bg);overflow:hidden}
-.auth-hero{background:linear-gradient(135deg,#003d82 0%,#0066cc 25%,#0099ff 50%,#00d4ff 75%,#0099ff 100%);color:#fff;display:flex;flex-direction:column;justify-content:space-between;position:relative;overflow:hidden;padding:0}
+.auth-hero{background:linear-gradient(135deg,#059669 0%,#16a34a 30%,#fbbf24 60%,#ff9f43 85%,#ff6b4a 100%);color:#fff;display:flex;flex-direction:column;justify-content:space-between;position:relative;overflow:hidden;padding:0}
 .auth-hero h2{font-size:40px;line-height:1.1;margin:0 0 14px;letter-spacing:-.02em;max-width:460px}
 .auth-hero p{opacity:.85;max-width:420px;font-size:15px;margin:0}
 .auth-hero .brand{color:#fff;padding:0;font-size:18px}

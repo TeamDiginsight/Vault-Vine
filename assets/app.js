@@ -62,7 +62,7 @@ let S = null;
 function emptyState(user){
   const r=defaultRates();
   return { user, profile:{display_name:"",display_currency:"USD",metal_currency:"INR",owners:["Self","Spouse","Joint","Kids","Family"]},
-           items:[], snapshots:[], fx:r.fx.value, rates:{fx:r.fx, metals:r.metals} };
+           items:[], stocks:[], snapshots:[], fx:r.fx.value, rates:{fx:r.fx, metals:r.metals} };
 }
 const R=()=>S.rates;
 Object.defineProperty(window,"DISPLAY",{get:()=>S.profile.display_currency});
@@ -138,18 +138,21 @@ const rowToSnap=r=>({id:r.id,date:r.snap_date,assets_usd:+r.assets_usd,liabiliti
 const isMissingTable=e=>e&&(e.code==="42P01"||e.code==="PGRST205"||/does not exist|Could not find the table/i.test(e.message||""));
 async function loadUserData(user){
   S=emptyState(user);
+  let stData={data:[],error:null};
   const [p,h,r,s]=await Promise.all([
     sb.from("profiles").select("*").eq("id",user.id).maybeSingle(),
     sb.from("holdings").select("*").order("created_at",{ascending:true}),
     sb.from("rate_settings").select("*"),
     sb.from("snapshots").select("*").order("snap_date",{ascending:true})
   ]);
+  try{ stData=await sb.from("stocks").select("*").order("buy_date",{ascending:false}); }catch(e){}
   const err=[p,h,r,s].map(x=>x.error).find(Boolean);
   if(err){ if(isMissingTable(err)) return "setup"; throw err; }
   // profile (created by trigger on sign-up; create here as a fallback)
   if(p.data) Object.assign(S.profile,{display_name:p.data.display_name||"",display_currency:p.data.display_currency,metal_currency:p.data.metal_currency,owners:p.data.owners?.length?p.data.owners:S.profile.owners});
   else { S.profile.display_name=user.user_metadata?.full_name||user.email?.split("@")[0]||""; await q(sb.from("profiles").insert({id:user.id,display_name:S.profile.display_name}),"create profile").catch(()=>{}); }
   S.items=(h.data||[]).map(rowToItem);
+  S.stocks=(stData.data||[]);
   S.snapshots=(s.data||[]).map(rowToSnap);
   const have=new Set();
   (r.data||[]).forEach(row=>{
@@ -201,6 +204,7 @@ async function refreshAll(manual){
 const VIEWS=[
  ["dashboard","Dashboard",'<path d="M3 13h8V3H3zM13 21h8V11h-8zM3 21h8v-6H3zM13 3v6h8V3z"/>'],
  ["holdings","Holdings",'<path d="M3 7h18M3 12h18M3 17h18"/>'],
+ ["stocks","Stocks",'<path d="M3 7h18M3 12h18M3 17h18"/><path d="M12 3v18"/>'],
  ["liabilities","Loans & Cards",'<rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/>'],
  ["history","History",'<path d="M3 12a9 9 0 109-9 9.7 9.7 0 00-6.7 2.7L3 8"/><path d="M3 3v5h5M12 7v5l3 3"/>'],
  ["settings","Settings",'<circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 00.3 1.8l.1.1a2 2 0 11-2.8 2.8l-.1-.1a1.7 1.7 0 00-1.8-.3 1.7 1.7 0 00-1 1.5V21a2 2 0 11-4 0v-.1a1.7 1.7 0 00-1.1-1.5 1.7 1.7 0 00-1.8.3l-.1.1a2 2 0 11-2.8-2.8l.1-.1a1.7 1.7 0 00.3-1.8 1.7 1.7 0 00-1.5-1H3a2 2 0 110-4h.1a1.7 1.7 0 001.5-1.1 1.7 1.7 0 00-.3-1.8l-.1-.1a2 2 0 112.8-2.8l.1.1a1.7 1.7 0 001.8.3H9a1.7 1.7 0 001-1.5V3a2 2 0 114 0v.1a1.7 1.7 0 001 1.5 1.7 1.7 0 001.8-.3l.1-.1a2 2 0 112.8 2.8l-.1.1a1.7 1.7 0 00-.3 1.8V9a1.7 1.7 0 001.5 1H21a2 2 0 110 4h-.1a1.7 1.7 0 00-1.5 1z"/>']
@@ -342,11 +346,41 @@ function renderLiabs(){
   $("#lTable").innerHTML=th([["entity","Loan / card"],["owner","Owner"],["currency","Ccy"],["value",`Balance owed (${DISPLAY})`,1]],lSort)+
    `<tbody>${rows.map(i=>`<tr><td><b>${esc(i.entity)}</b></td><td>${esc(i.owner)}</td><td>${i.currency}</td><td class="r num">${i.amount==null?'<span class="empty">Not entered</span>':money(costUSD(i))}</td><td>${editBtn(i.id)}</td></tr>`).join("")||`<tr><td colspan="5" class="sub" style="padding:24px 12px">No loans or cards yet.</td></tr>`}</tbody>`;
 }
+async function renderStocks(){
+  const qy=$("#sSearch").value.toLowerCase(), fc=$("#sCcy").value;
+  const rows=(S.stocks||[]).filter(s=>(!qy||s.ticker.toUpperCase().includes(qy.toUpperCase())||s.stock_name?.toLowerCase().includes(qy))&&(!fc||s.currency===fc));
+  let html=`<thead><tr><th>Ticker</th><th>Bought</th><th class="r">Price</th><th class="r">Current</th><th class="r">Qty</th><th class="r">Cost</th><th class="r">Value</th><th class="r">Gain/Loss</th><th class="r">%</th><th></th></tr></thead><tbody>`;
+
+  if(rows.length===0){ html+=`<tr><td colspan="10" class="sub" style="padding:24px 12px">No stocks yet — click <b>+ Add stock</b>.</td></tr>`; }
+  else {
+    for(const s of rows) {
+      const cost=s.buy_price*s.quantity;
+      const priceData=await getStockPrice(s.ticker);
+      const current=priceData?.price||null;
+      const value=current?current*s.quantity:null;
+      const gain=value?value-cost:null;
+      const gainPct=gain&&cost?gain/cost*100:null;
+
+      const markup=`<tr data-stock="${s.id}"><td><b>${esc(s.ticker)}</b>${s.stock_name?`<div class="sub">${esc(s.stock_name)}</div>`:""}</td>
+        <td>${esc(s.buy_date)}</td><td class="r num">${fmt(s.buy_price,s.currency,false,4)}</td>
+        <td class="r num">${current?fmt(current,s.currency,false,4):"—"}</td><td class="r num">${(+s.quantity).toFixed(3)}</td>
+        <td class="r num">${fmt(cost,s.currency)}</td><td class="r num">${value?fmt(value,s.currency):"—"}</td>
+        <td class="r num">${gain===null?'—':`<span class="${gain>=0?"pos":"neg"}">${gain>=0?"+":"−"}${fmt(Math.abs(gain),s.currency)}</span>`}</td>
+        <td class="r num">${gainPct===null?'—':`<span class="${gainPct>=0?"pos":"neg"}">${gainPct>=0?"+":""}${gainPct.toFixed(2)}%</span>`}</td>
+        <td><button class="iconbtn" data-stock-detail="${s.id}" title="View chart"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18M3 18l4-4 4 4 6-6 4 4"/></svg></button><button class="iconbtn" data-edit-stock="${s.id}" title="Edit"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9M16.5 3.5a2.1 2.1 0 013 3L7 19l-4 1 1-4z"/></svg></button></td></tr>`;
+      html+=markup;
+    }
+  }
+  html+=`</tbody>`;
+  $("#sTable").innerHTML=html;
+  $("#pageSub").textContent=`${rows.length} stock${rows.length===1?"":"s"}`;
+}
+
 function renderHistory(){
   $("#pageSub").textContent=`${S.snapshots.length} snapshot${S.snapshots.length===1?"":"s"} saved`;
-  if(!S.snapshots.length){$("#sTable").innerHTML=`<tbody><tr><td class="sub" style="padding:24px 12px">No snapshots yet. Take your first one now — then again each month after updating balances.</td></tr></tbody>`;return;}
+  if(!S.snapshots.length){$("#hsTable").innerHTML=`<tbody><tr><td class="sub" style="padding:24px 12px">No snapshots yet. Take your first one now — then again each month after updating balances.</td></tr></tbody>`;return;}
   const rows=[...S.snapshots].reverse();
-  $("#sTable").innerHTML=`<thead><tr><th>Date</th><th class="r">Assets</th><th class="r">Liabilities</th><th class="r">Net worth</th><th class="r">Change</th><th class="r">FX</th><th class="r">Gold 22K/g</th><th></th></tr></thead><tbody>${rows.map((s,idx)=>{
+  $("#hsTable").innerHTML=`<thead><tr><th>Date</th><th class="r">Assets</th><th class="r">Liabilities</th><th class="r">Net worth</th><th class="r">Change</th><th class="r">FX</th><th class="r">Gold 22K/g</th><th></th></tr></thead><tbody>${rows.map((s,idx)=>{
     const prev=rows[idx+1], d=prev?s.nw_usd-prev.nw_usd:null;
     return `<tr><td>${esc(s.date)}</td><td class="r num">${money(s.assets_usd)}</td><td class="r num">${money(s.liabilities_usd)}</td><td class="r num"><b>${money(s.nw_usd)}</b></td>
     <td class="r num ${d==null?"":d>=0?"pos":"neg"}">${d==null?"—":(d>=0?"+":"−")+money(Math.abs(d))}</td><td class="r num">${s.fx?"₹"+(+s.fx).toFixed(2):"—"}</td>
@@ -417,7 +451,7 @@ function render(){
   if(!S) return;
   document.querySelectorAll("#ccySeg button").forEach(b=>b.classList.toggle("on",b.dataset.c===DISPLAY));
   renderTicker(); renderUser();
-  ({dashboard:renderDashboard,holdings:renderHoldings,liabilities:renderLiabs,history:renderHistory,settings:renderSettings})[current]();
+  ({dashboard:renderDashboard,holdings:renderHoldings,stocks:renderStocks,liabilities:renderLiabs,history:renderHistory,settings:renderSettings})[current]();
 }
 
 /* ---------------- Settings events ---------------- */
@@ -456,7 +490,7 @@ async function saveProfilePref(patch){ Object.assign(S.profile,patch); render();
 
 /* ---------------- Filters ---------------- */
 $("#hType").innerHTML=`<option value="">All types</option>`+Object.entries(TYPES).map(([k,v])=>`<option value="${k}">${v.label}</option>`).join("");
-["#hSearch","#hType","#hCcy","#hOwner","#lSearch"].forEach(s=>$(s).addEventListener("input",render));
+["#hSearch","#hType","#hCcy","#hOwner","#lSearch","#sSearch","#sCcy"].forEach(s=>$(s)?.addEventListener("input",render));
 
 /* ---------------- Add / edit dialog ---------------- */
 const dlg=$("#dlg"), form=$("#dlgForm"); let editing=null, editKind="asset";
@@ -584,6 +618,7 @@ document.addEventListener("click",async e=>{
     render(); await saveRates([rateKeyOf(key)]).catch(()=>{}); toast(c.status?"Failed: "+c.status:"Fetched ✓ — now on Auto"); return; }
   if(act==="add-asset") return openDlg("asset");
   if(act==="add-liab") return openDlg("liability");
+  if(act==="add-stock") return openStockDlg();
   if(act==="snapshot"){ const t=totals(), d=new Date().toISOString().slice(0,10);
     try{ const row=await q(sb.from("snapshots").upsert({user_id:S.user.id,snap_date:d,assets_usd:+t.a.toFixed(2),liabilities_usd:+t.l.toFixed(2),net_worth_usd:+t.nw.toFixed(2),fx:S.fx,gold22_inr_g:+metalPrice("gold","22K","INR").toFixed(2)},{onConflict:"user_id,snap_date"}).select().single(),"save snapshot");
       S.snapshots=S.snapshots.filter(s=>s.date!==d).concat(rowToSnap(row)).sort((x,y)=>x.date<y.date?-1:1); render(); toast("Snapshot saved for "+d); }catch(e){} return; }
@@ -634,6 +669,188 @@ async function start(user){
   }catch(e){ console.error(e); startedFor=null; show("auth"); authMsg("Couldn't load your vault: "+(e.message||e),"err"); }
 }
 function signedOut(){ startedFor=null; S=null; Object.values(charts).forEach(c=>c.destroy()); show("auth"); }
+
+/* ---------- Stocks dialog ---------- */
+let editingStock=null;
+const stockDlg=$("#stockDlg"), stockForm=$("#stockForm");
+
+async function openStockDlg(stock=null){
+  editingStock=stock;
+  $("#stockDlgTitle").textContent=(stock?"Edit ":"Add ")+"stock";
+  $("#stockDelete").style.display=stock?"":"none";
+  stockForm.ticker.value=stock?.ticker||"";
+  stockForm.buyDate.value=stock?.buy_date||"";
+  stockForm.buyPrice.value=stock?.buy_price||"";
+  stockForm.quantity.value=stock?.quantity||"";
+  stockForm.currency.value=stock?.currency||"USD";
+  stockForm.notes.value=stock?.notes||"";
+  $("#tickerInfo").textContent="";
+  $("#tickerResults").innerHTML="";
+  $("#stockPreview").style.display="none";
+  stockDlg.showModal();
+}
+
+stockForm.ticker.addEventListener("input",async e=>{
+  const q=e.target.value.trim();
+  if(q.length<1){ $("#tickerResults").innerHTML=""; return; }
+
+  const results=await searchTickers(q);
+  if(results.length){
+    $("#tickerResults").style.display="block";
+    $("#tickerResults").innerHTML=results.slice(0,8).map(r=>`
+      <div class="ticker-item" data-ticker="${esc(r.ticker)}" data-name="${esc(r.name)}" data-exchange="${esc(r.exchange)}">
+        <div><b>${esc(r.ticker)}</b></div>
+        <div style="font-size:11px;color:var(--muted)">${esc(r.name)} · ${esc(r.exchange)}</div>
+      </div>`).join("");
+  }else{
+    $("#tickerResults").style.display="none";
+  }
+});
+
+$("#tickerResults").addEventListener("click",e=>{
+  const item=e.target.closest(".ticker-item");
+  if(item){
+    stockForm.ticker.value=item.dataset.ticker;
+    $("#tickerInfo").textContent=`${item.dataset.name} (${item.dataset.exchange})`;
+    $("#tickerResults").style.display="none";
+  }
+});
+
+stockForm.addEventListener("submit",async e=>{
+  e.preventDefault();
+  if(!stockForm.ticker.value.trim()) return toast("Ticker is required");
+  if(!stockForm.buyDate.value) return toast("Purchase date is required");
+  if(!stockForm.buyPrice.value) return toast("Purchase price is required");
+  if(!stockForm.quantity.value) return toast("Quantity is required");
+
+  saving(true);
+  try{
+    const ticker=stockForm.ticker.value.toUpperCase().trim();
+    const buyDate=stockForm.buyDate.value;
+    const buyPrice=parseFloat(stockForm.buyPrice.value);
+    const quantity=parseFloat(stockForm.quantity.value);
+    const currency=stockForm.currency.value;
+    const notes=stockForm.notes.value.trim();
+
+    if(editingStock){
+      await updateStock(editingStock.id,{ticker,buy_date:buyDate,buy_price:buyPrice,quantity,currency,notes});
+      S.stocks=S.stocks.map(s=>s.id===editingStock.id?{...s,ticker,buy_date:buyDate,buy_price:buyPrice,quantity,currency,notes}:s);
+      toast("Stock updated");
+    }else{
+      const result=await addStock(ticker,buyDate,buyPrice,quantity,currency,"","",notes);
+      if(result) S.stocks=[result,...S.stocks];
+      else throw new Error("Failed to add stock");
+      toast("Stock added");
+    }
+    render();
+    stockDlg.close();
+  }catch(e){
+    console.error(e);
+    toast("Error: "+e.message);
+  }finally{
+    saving(false);
+  }
+});
+
+$("#stockDelete").addEventListener("click",async()=>{
+  if(!editingStock||!confirm("Delete this stock?")) return;
+  saving(true);
+  try{
+    await deleteStock(editingStock.id);
+    S.stocks=S.stocks.filter(s=>s.id!==editingStock.id);
+    render();
+    stockDlg.close();
+    toast("Stock deleted");
+  }catch(e){
+    console.error(e);
+    toast("Error: "+e.message);
+  }finally{
+    saving(false);
+  }
+});
+
+$("#stockCancel").addEventListener("click",()=>stockDlg.close());
+$("#stockDetailClose").addEventListener("click",()=>$("#stockDetailDlg").close());
+
+// Edit stock handler
+document.addEventListener("click",async e=>{
+  if(e.target.closest("[data-edit-stock]")){
+    const stockId=e.target.closest("[data-edit-stock]").dataset.editStock;
+    const stock=S.stocks.find(s=>s.id===stockId);
+    if(stock) openStockDlg(stock);
+  }
+
+  if(e.target.closest("[data-stock-detail]")){
+    const stockId=e.target.closest("[data-stock-detail]").dataset.stockDetail;
+    const stock=S.stocks.find(s=>s.id===stockId);
+    if(stock) await showStockChart(stock);
+  }
+});
+
+// Show stock price chart
+async function showStockChart(stock){
+  $("#stockDetailTitle").textContent=stock.ticker;
+  const priceData=await getStockPrice(stock.ticker);
+
+  if(priceData){
+    $("#stockDetailPrice").innerHTML=`$${priceData.price.toFixed(2)} (${stock.currency})`;
+    const gain=priceData.price*stock.quantity-stock.buy_price*stock.quantity;
+    const gainPct=(gain/(stock.buy_price*stock.quantity))*100;
+    $("#stockDetailGain").innerHTML=`<span class="${gain>=0?"pos":"neg"}">${gain>=0?"+":"−"}${fmt(Math.abs(gain),stock.currency)} (${gainPct.toFixed(2)}%)</span>`;
+  }else{
+    $("#stockDetailPrice").textContent="Unable to fetch price";
+    $("#stockDetailGain").textContent="—";
+  }
+
+  // Fetch historical data
+  const history=await getStockHistory(stock.ticker,stock.buy_date,new Date().toISOString().split('T')[0]);
+
+  if(history.length>0){
+    baseOpts();
+    mk("stockChart",{
+      type:"line",
+      data:{
+        labels:history.map(h=>h.date),
+        datasets:[{
+          label:"Price ("+stock.currency+")",
+          data:history.map(h=>h.price),
+          borderColor:css("--accent"),
+          backgroundColor:css("--accent")+"22",
+          fill:true,
+          tension:.3,
+          pointRadius:2,
+          borderWidth:2
+        },{
+          label:"Buy price",
+          data:Array(history.length).fill(stock.buy_price),
+          borderColor:css("--muted"),
+          borderDash:[4,4],
+          pointRadius:0,
+          borderWidth:1,
+          fill:false
+        }]
+      },
+      options:{
+        maintainAspectRatio:false,
+        interaction:{mode:"index",intersect:false},
+        plugins:{
+          legend:{position:"top",labels:{boxWidth:10}},
+          tooltip:{...tip(),callbacks:{label:c=>`${c.dataset.label}: ${c.raw.toFixed(2)}`}}
+        },
+        scales:{
+          y:{ticks:{callback:v=>"$"+v.toFixed(2)},grid:{color:css("--border")}},
+          x:{grid:{display:false}}
+        }
+      }
+    });
+    $("#stockChartInfo").textContent=`Price from ${history[0].date} to ${history[history.length-1].date}`;
+  }else{
+    $("#stockChart").style.display="none";
+    $("#stockChartInfo").textContent="No historical data available yet. Check back soon!";
+  }
+
+  $("#stockDetailDlg").showModal();
+}
 
 // Banner close handler
 document.addEventListener("DOMContentLoaded",()=>{

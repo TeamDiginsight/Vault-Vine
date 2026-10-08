@@ -199,11 +199,23 @@
       </div>
     </section>
 
+    <!-- STOCKS -->
+    <section class="view" id="v-stocks">
+      <div class="card panel">
+        <div class="toolbar">
+          <input class="search" id="sSearch" placeholder="Search stocks…">
+          <select class="filter" id="sCcy"><option value="">All currencies</option><option>USD</option><option>INR</option></select>
+          <button class="btn primary" data-act="add-stock">+ Add stock</button>
+        </div>
+        <div class="table-wrap"><table id="sTable"></table></div>
+      </div>
+    </section>
+
     <!-- HISTORY -->
     <section class="view" id="v-history">
       <div class="card panel">
         <div class="ph"><div><h3>Snapshots</h3><div class="sub">A snapshot freezes today's totals so you can track progress month to month.</div></div><button class="btn primary" data-act="snapshot">+ Take snapshot now</button></div>
-        <div class="table-wrap"><table id="sTable"></table></div>
+        <div class="table-wrap"><table id="hsTable"></table></div>
       </div>
     </section>
 
@@ -273,9 +285,51 @@
     <button type="submit" class="btn primary" id="dlgSave">Save</button>
   </div>
 </form></dialog>
+
+<!-- STOCK DIALOG -->
+<dialog id="stockDlg"><form class="dlg" id="stockForm" method="dialog">
+  <h3 id="stockDlgTitle">Add stock</h3>
+  <div class="field">
+    <label>Stock ticker</label>
+    <div style="position:relative">
+      <input name="ticker" id="stockTicker" required maxlength="20" placeholder="e.g. AAPL, TCS.NS" autocomplete="off">
+      <div id="tickerResults" class="ticker-dropdown" style="display:none"></div>
+    </div>
+    <div id="tickerInfo" style="font-size:11px;color:var(--muted);margin-top:4px"></div>
+  </div>
+  <div class="two">
+    <div class="field"><label>Date bought</label><input name="buyDate" type="date" required></div>
+    <div class="field"><label>Price paid</label><input name="buyPrice" type="number" step="0.01" min="0" required placeholder="0.00"></div>
+  </div>
+  <div class="two">
+    <div class="field"><label>Quantity</label><input name="quantity" type="number" step="any" min="0.001" required placeholder="e.g. 10.5"></div>
+    <div class="field"><label>Currency</label><select name="currency"><option>USD</option><option>INR</option></select></div>
+  </div>
+  <div class="field"><label>Notes (optional)</label><input name="notes" maxlength="500" placeholder="e.g. 401k, long-term hold"></div>
+  <div id="stockPreview" style="padding:12px;background:var(--surface);border-radius:6px;margin:12px 0;font-size:13px;display:none"></div>
+  <div class="dlg-actions">
+    <button type="button" class="btn danger" id="stockDelete" style="margin-right:auto">Delete</button>
+    <button type="button" class="btn" id="stockCancel">Cancel</button>
+    <button type="submit" class="btn primary" id="stockSave">Save</button>
+  </div>
+</form></dialog>
+
+<!-- STOCK DETAIL DIALOG -->
+<dialog id="stockDetailDlg"><form class="dlg" id="stockDetailForm" method="dialog">
+  <h3 id="stockDetailTitle">AAPL</h3>
+  <div class="field"><label>Current price</label><div id="stockDetailPrice" style="font-size:16px;font-weight:600;padding:8px 0">—</div></div>
+  <div class="field"><label>Gain / Loss</label><div id="stockDetailGain" style="font-size:16px;font-weight:600;padding:8px 0">—</div></div>
+  <div class="chart" style="height:300px"><canvas id="stockChart"></canvas></div>
+  <div id="stockChartInfo" style="font-size:12px;color:var(--muted);margin:8px 0;text-align:center"></div>
+  <div class="dlg-actions">
+    <button type="button" class="btn" id="stockDetailClose">Close</button>
+  </div>
+</form></dialog>
+
 <div class="toast" id="toast"></div>
 <div class="saving" id="saving">Saving…</div>
 
+<script src="assets/stocks.js"></script>
 <script src="assets/app.js"></script>
 </body>
 </html>

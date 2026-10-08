@@ -211,6 +211,7 @@ function go(v){
   current=v; lsSet("vv.view",v);
   document.querySelectorAll(".view").forEach(s=>s.classList.toggle("active",s.id==="v-"+v));
   $("#navSide").innerHTML=navHTML(); $("#navMobile").innerHTML=navHTML();
+  document.querySelectorAll(".nav-btn").forEach(b=>b.classList.toggle("active",b.dataset.view===v));
   $("#pageTitle").textContent=VIEWS.find(x=>x[0]===v)[1];
   window.scrollTo(0,0); render();
 }

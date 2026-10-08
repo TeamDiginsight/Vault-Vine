@@ -5,9 +5,9 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Vault &amp; Vine</title>
 <meta name="description" content="Vault & Vine — your family's wealth, guarded and growing.">
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%23ff5252'/%3E%3Cpath d='M16 25c0-6 1-11 7-15M16 19c-2-3-5-4-8-4 0 4 3 6 8 4z' fill='none' stroke='%23fff' stroke-width='2.4' stroke-linecap='round'/%3E%3C/svg%3E">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%23177a5c'/%3E%3Cpath d='M16 25c0-6 1-11 7-15M16 19c-2-3-5-4-8-4 0 4 3 6 8 4z' fill='none' stroke='%23fff' stroke-width='2.4' stroke-linecap='round'/%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="assets/styles.css">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.116.0/dist/umd/supabase.js"></script>
@@ -72,241 +72,156 @@
 
 <!-- App -->
 <div class="app hidden" id="appScreen">
-  <!-- Modern Header -->
-  <header class="modern-header">
-    <div class="header-left">
-      <div class="brand-modern">
-        <div class="brand-icon">🌱</div>
-        <span>Vault <span class="amp">&amp;</span> Vine</span>
+  <!-- Branded Banner -->
+  <div class="top-banner" id="topBanner">
+    <div class="banner-logo">
+      <div class="banner-logo-icon">🌱</div>
+      <div class="banner-logo-text">Vault <span class="amp">&amp;</span> Vine</div>
+    </div>
+    <div class="banner-content">
+      <div class="banner-icon">🌱</div>
+      <div class="banner-text">
+        <h2>Cultivate Your Savings</h2>
+        <p>Track your cash, uncover new areas to save, and watch your portfolio flourish</p>
       </div>
     </div>
-    <nav class="header-nav" id="headerNav">
-      <button class="nav-btn active" data-view="dashboard">Dashboard</button>
-      <button class="nav-btn" data-view="holdings">Holdings</button>
-      <button class="nav-btn" data-view="liabilities">Liabilities</button>
-      <button class="nav-btn" data-view="history">History</button>
-      <button class="nav-btn" data-view="settings">Settings</button>
-    </nav>
-    <div class="header-right">
-      <div class="rate-badge" id="ticker" title="Market rates — click to configure"></div>
-      <div class="currency-toggle" id="ccySeg"><button data-c="USD">$ USD</button><button data-c="INR">₹ INR</button></div>
-      <button class="icon-btn" id="themeBtn" title="Toggle theme">🌙</button>
-      <div class="profile-section">
-        <div class="avatar" id="avatar"></div>
-        <div class="profile-info">
-          <div class="user-name" id="userName"></div>
-          <div class="user-email" id="userEmail"></div>
-        </div>
-        <button class="icon-btn" data-act="signout" title="Sign out">↪</button>
+    <div class="userbox banner-userbox">
+      <div class="avatar" id="avatar"></div>
+      <div class="who"><b id="userName"></b><span id="userEmail"></span></div>
+      <button class="iconbtn" data-act="signout" title="Sign out"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4M16 17l5-5-5-5M21 12H9"/></svg></button>
+    </div>
+  </div>
+  <aside>
+    <div id="navSide"></div>
+  </aside>
+  <main>
+    <div class="topbar">
+      <div><h1 id="pageTitle">Dashboard</h1><div class="sub" id="pageSub"></div></div>
+      <div class="controls">
+        <div class="ticker" id="ticker" title="Market rates — click to configure"></div>
+        <div class="seg" id="ccySeg"><button data-c="USD">$ USD</button><button data-c="INR">₹ INR</button></div>
+        <button class="iconbtn" id="themeBtn" title="Toggle theme"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.8A9 9 0 1111.2 3a7 7 0 009.8 9.8z"/></svg></button>
       </div>
     </div>
-  </header>
 
-  <main class="app-main">
-    <div class="container">
-
-      <!-- DASHBOARD VIEW -->
-      <section class="view" id="v-dashboard">
-        <!-- Hero Banner Section -->
-        <section class="hero-banner">
-          <span class="brand-tag">VAULT &amp; VINE.</span>
-          <h1 class="hero-title">SECURE.<br>OPTIMIZE. GROW. FLOURISH.</h1>
-          <p class="hero-subtitle">Track your cash, uncover new areas to save, and watch your portfolio flourish across all US and India accounts.</p>
-          <div class="hero-buttons">
-            <button class="btn-coral" data-act="add-asset">GET STARTED FOR FREE</button>
-            <button class="btn-teal" data-act="snapshot">TAKE SNAPSHOT</button>
-          </div>
-          <div class="hero-illustration">
-            <svg viewBox="0 0 500 350" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path d="M80 280C50 220 70 140 140 100C160 140 130 220 80 280Z" fill="#10B981" opacity="0.2"/>
-              <path d="M420 280C450 220 430 140 360 100C340 140 370 220 420 280Z" fill="#F59E0B" opacity="0.25"/>
-              <path d="M100 290 Q 150 180 220 120" stroke="#059669" stroke-width="8" stroke-linecap="round"/>
-              <circle cx="120" cy="240" r="16" fill="#10B981"/>
-              <circle cx="160" cy="180" r="20" fill="#34D399"/>
-              <path d="M400 290 Q 350 180 280 120" stroke="#D97706" stroke-width="8" stroke-linecap="round"/>
-              <circle cx="380" cy="240" r="16" fill="#F59E0B"/>
-              <circle cx="340" cy="180" r="20" fill="#FBBF24"/>
-              <rect x="150" y="80" width="200" height="200" rx="28" fill="#1E293B" stroke="#94A3B8" stroke-width="6"/>
-              <rect x="170" y="100" width="160" height="160" rx="20" fill="#334155"/>
-              <circle cx="250" cy="180" r="45" fill="#0F172A" stroke="#CBD5E1" stroke-width="6"/>
-              <circle cx="250" cy="180" r="20" fill="#64748B"/>
-              <path d="M250 135 L250 225 M205 180 L295 180" stroke="#CBD5E1" stroke-width="5" stroke-linecap="round"/>
-              <circle cx="250" cy="50" r="18" fill="#F59E0B" stroke="#FFF" stroke-width="3"/>
-              <text x="245" y="56" fill="#FFF" font-weight="bold" font-size="18">$</text>
-            </svg>
-          </div>
-        </section>
-
-        <!-- Empty State -->
-        <div class="card hidden" id="emptyState">
-          <div class="emptystate">
-            <div class="big">🌱</div>
-            <h2>Your vault is empty</h2>
-            <div class="sub">Add your first holding, or import a backup.</div>
-            <div class="controls">
-              <button class="btn-coral" data-act="add-asset">+ Add holding</button>
-              <label class="btn">Import backup (JSON)<input type="file" accept=".json" data-import hidden></label>
-            </div>
-          </div>
+    <!-- DASHBOARD -->
+    <section class="view" id="v-dashboard">
+      <div class="card hidden" id="emptyState"><div class="emptystate">
+        <div class="big">🌱</div><h2>Your vault is empty</h2>
+        <div class="sub">Add your first holding, or import the backup you exported from the prototype dashboard.</div>
+        <div class="controls"><button class="btn primary" data-act="add-asset">+ Add holding</button><label class="btn">Import backup (JSON)<input type="file" accept=".json" data-import hidden></label></div>
+      </div></div>
+      <div id="dashBody">
+      <div class="kpis" id="kpis"></div>
+      <div class="grid">
+        <div class="card panel span-8">
+          <div class="ph"><div><h3>Net worth over time</h3><div class="sub">From saved snapshots — take one each month to see the trend</div></div><button class="btn sm" data-act="snapshot">+ Snapshot</button></div>
+          <div class="chart" id="trendBox"><canvas id="chTrend"></canvas><div id="trendEmpty" style="position:absolute;inset:0;display:none;place-items:center;text-align:center;color:var(--muted)"><div><div style="font-size:28px">📈</div><b style="color:var(--text)">Your trend starts here</b><br>Click <b>+ Snapshot</b> today, then again next month after updating balances.</div></div></div>
         </div>
-
-        <!-- KPI Grid -->
-        <div id="dashBody" style="display:none">
-          <div class="kpi-grid" id="kpis"></div>
-
-          <!-- Dashboard Split Layout -->
-          <div class="dashboard-split">
-            <!-- Left: Feature Card -->
-            <div class="vector-feature-card">
-              <div class="feature-svg-box">
-                <svg viewBox="0 0 120 120" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <rect x="10" y="20" width="100" height="80" rx="16" fill="#1E293B" stroke="#334155" stroke-width="4"/>
-                  <path d="M25 80 L45 55 L65 65 L95 35" stroke="#10B981" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
-                  <circle cx="95" cy="35" r="5" fill="#34D399"/>
-                  <rect x="25" y="88" width="70" height="4" rx="2" fill="#475569"/>
-                </svg>
-              </div>
-              <div class="feature-content">
-                <h3>Areas to Save</h3>
-                <p>Track your cash, uncover new areas to save, and watch your portfolio flourish with real-time analytics.</p>
-                <button class="btn-coral" style="padding:8px 18px;font-size:0.85rem" data-act="snapshot">+ TAKE SNAPSHOT</button>
-              </div>
-            </div>
-
-            <!-- Right: Charts -->
-            <div class="card">
-              <div class="card-title">
-                <span>Portfolio Breakdown</span>
-              </div>
-              <div class="charts-row">
-                <div class="chart-container">
-                  <canvas id="chType"></canvas>
-                </div>
-                <div class="chart-container">
-                  <canvas id="chGeo"></canvas>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <!-- Full Width Charts -->
-          <div class="charts-grid">
-            <div class="card">
-              <div class="card-title"><span>Net Worth Over Time</span></div>
-              <div class="chart"><canvas id="chTrend"></canvas></div>
-            </div>
-            <div class="card">
-              <div class="card-title"><span>Assets vs Liabilities</span></div>
-              <div class="chart"><canvas id="chAL"></canvas></div>
-            </div>
-            <div class="card">
-              <div class="card-title"><span>Top 10 Holdings</span></div>
-              <div class="chart"><canvas id="chTop"></canvas></div>
-            </div>
-            <div class="card">
-              <div class="card-title"><span>By Owner</span></div>
-              <div class="chart"><canvas id="chOwner"></canvas></div>
-            </div>
-            <div class="card">
-              <div class="card-title"><span>Precious Metals</span></div>
-              <div id="metalPanel"></div>
-            </div>
-            <div class="card">
-              <div class="card-title"><span>Liquidity Ladder</span></div>
-              <div class="bar-track" id="liqBar" style="height:16px"></div>
-              <div class="legend" id="lgLiq" style="margin-top:14px"></div>
-            </div>
-          </div>
+        <div class="card panel span-4">
+          <div class="ph"><div><h3>Assets vs liabilities</h3><div class="sub" id="dtaSub"></div></div></div>
+          <div class="chart"><canvas id="chAL"></canvas></div>
         </div>
-      </section>
-
-      <!-- HOLDINGS VIEW -->
-      <section class="view" id="v-holdings">
-        <div class="card">
-          <div class="card-header">
-            <h2>Asset Holdings</h2>
-            <button class="btn-coral" data-act="add-asset">+ Add Holding</button>
-          </div>
-          <div class="toolbar">
-            <input class="search" id="hSearch" placeholder="Search holdings…">
-            <select class="filter" id="hType"></select>
-            <select class="filter" id="hCcy"><option value="">All currencies</option><option>USD</option><option>INR</option></select>
-            <select class="filter" id="hOwner"></select>
-          </div>
-          <div class="table-wrap"><table id="hTable"></table></div>
+        <div class="card panel span-6">
+          <div class="ph"><div><h3>Allocation by asset type</h3><div class="sub">Share of total assets at current value</div></div></div>
+          <div class="donut-wrap"><div class="chart"><canvas id="chType"></canvas></div><div class="legend" id="lgType"></div></div>
         </div>
-      </section>
-
-      <!-- LIABILITIES VIEW -->
-      <section class="view" id="v-liabilities">
-        <div class="card">
-          <div class="card-header">
-            <h2>Liabilities &amp; Loans</h2>
-            <button class="btn-coral" data-act="add-liab">+ Add Loan / Card</button>
-          </div>
-          <div class="notice" id="liabNotice" style="display:none"></div>
-          <div class="kpi-grid" id="liabKpis"></div>
-          <div class="toolbar">
-            <input class="search" id="lSearch" placeholder="Search loans & cards…">
-          </div>
-          <div class="table-wrap"><table id="lTable"></table></div>
+        <div class="card panel span-6">
+          <div class="ph"><div><h3>US vs India</h3><div class="sub">By holding currency</div></div></div>
+          <div class="donut-wrap"><div class="chart"><canvas id="chGeo"></canvas></div><div class="legend" id="lgGeo"></div></div>
         </div>
-      </section>
-
-      <!-- HISTORY VIEW -->
-      <section class="view" id="v-history">
-        <div class="card">
-          <div class="card-header">
-            <h2>Snapshots</h2>
-            <button class="btn-coral" data-act="snapshot">+ Take Snapshot Now</button>
-          </div>
-          <p class="sub">A snapshot freezes today's totals so you can track progress month to month.</p>
-          <div class="table-wrap"><table id="sTable"></table></div>
+        <div class="card panel span-7">
+          <div class="ph"><div><h3>Top 10 holdings</h3><div class="sub" id="topSub"></div></div></div>
+          <div class="chart tall"><canvas id="chTop"></canvas></div>
         </div>
-      </section>
-
-      <!-- SETTINGS VIEW -->
-      <section class="view" id="v-settings">
-        <div class="card" style="margin-bottom:1.5rem">
-          <div class="card-header">
-            <h2>Market Rates</h2>
-            <button class="btn-coral" data-act="refresh">Refresh All</button>
-          </div>
-          <p class="sub">Used to convert currencies and value precious metals. Each rate can update from an API or be entered manually.</p>
-          <div id="ratesBox"></div>
+        <div class="card panel span-5">
+          <div class="ph"><div><h3>By owner</h3><div class="sub">Assets held per person</div></div></div>
+          <div class="chart tall"><canvas id="chOwner"></canvas></div>
         </div>
-
-        <div class="settings-grid">
-          <div class="card">
-            <h3>Profile &amp; Household</h3>
-            <p class="sub">Your display name, and the people you can assign holdings to.</p>
-            <div class="field"><label class="sub">Display name</label><input class="inp" id="profName" maxlength="80"></div>
-            <div class="field"><label class="sub">Primary currency</label><div class="seg" id="primaryCcySeg"><button data-pc="USD">$ USD</button><button data-pc="INR">₹ INR</button></div></div>
-            <label class="sub" style="font-weight:600;font-size:12px">Household members</label>
-            <div class="chips" id="ownerChips"></div>
-            <form id="ownerForm" class="controls"><input class="inp" id="ownerInput" maxlength="40" placeholder="Add a person, e.g. Thyagu" style="flex:1"><button class="btn sm" type="submit">Add</button></form>
-          </div>
-
-          <div class="card">
-            <h3>Backup &amp; Import</h3>
-            <p class="sub">Export your vault or import a backup.</p>
-            <div class="controls">
-              <label class="btn primary">Import JSON<input type="file" accept=".json" data-import hidden></label>
-              <button class="btn" data-act="export-json">Export JSON</button>
-              <button class="btn" data-act="export-csv">Export CSV</button>
-            </div>
-            <hr style="border:0;border-top:1px solid var(--border);margin:18px 0">
-            <h3>Danger Zone</h3>
-            <p class="sub">Permanently delete all your data.</p>
-            <button class="btn danger" data-act="wipe">Delete All Data</button>
-          </div>
+        <div class="card panel span-6">
+          <div class="ph"><div><h3>Precious metals</h3><div class="sub" id="metalSub"></div></div><button class="btn sm" data-view="settings">Prices</button></div>
+          <div id="metalPanel"></div>
         </div>
-      </section>
+        <div class="card panel span-6">
+          <div class="ph"><div><h3>Liquidity ladder</h3><div class="sub">How quickly your assets could become cash</div></div></div>
+          <div class="bar-track" id="liqBar" style="height:16px"></div>
+          <div class="legend" id="lgLiq" style="margin-top:14px"></div>
+        </div>
+      </div>
+      </div>
+    </section>
 
-    </div>
+    <!-- HOLDINGS -->
+    <section class="view" id="v-holdings">
+      <div class="notice" id="holdNotice" style="display:none"></div>
+      <div class="card panel">
+        <div class="toolbar">
+          <input class="search" id="hSearch" placeholder="Search holdings…">
+          <select class="filter" id="hType"></select>
+          <select class="filter" id="hCcy"><option value="">All currencies</option><option>USD</option><option>INR</option></select>
+          <select class="filter" id="hOwner"></select>
+          <button class="btn primary" data-act="add-asset">+ Add holding</button>
+        </div>
+        <div class="table-wrap"><table id="hTable"></table></div>
+      </div>
+    </section>
+
+    <!-- LIABILITIES -->
+    <section class="view" id="v-liabilities">
+      <div class="notice" id="liabNotice"></div>
+      <div class="kpis" id="liabKpis"></div>
+      <div class="card panel">
+        <div class="toolbar"><input class="search" id="lSearch" placeholder="Search loans & cards…"><button class="btn primary" data-act="add-liab">+ Add loan / card</button></div>
+        <div class="table-wrap"><table id="lTable"></table></div>
+      </div>
+    </section>
+
+    <!-- HISTORY -->
+    <section class="view" id="v-history">
+      <div class="card panel">
+        <div class="ph"><div><h3>Snapshots</h3><div class="sub">A snapshot freezes today's totals so you can track progress month to month.</div></div><button class="btn primary" data-act="snapshot">+ Take snapshot now</button></div>
+        <div class="table-wrap"><table id="sTable"></table></div>
+      </div>
+    </section>
+
+    <!-- SETTINGS -->
+    <section class="view" id="v-settings">
+      <div class="card panel" style="margin-bottom:14px">
+        <div class="ph">
+          <div><h3>Market rates</h3><div class="sub">Used to convert currencies and value Gold, Silver &amp; Metal holdings by weight. Each rate can update from an API or be typed in manually.</div></div>
+          <div class="controls"><label class="sub" style="display:flex;gap:6px;align-items:center">Show metal prices in
+            <span class="seg sm" id="metalCcySeg"><button data-mc="INR">₹</button><button data-mc="USD">$</button></span></label>
+            <button class="btn primary" data-act="refresh" id="refreshBtn"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M21 12a9 9 0 11-3-6.7L21 8"/><path d="M21 3v5h-5"/></svg>Refresh all</button></div>
+        </div>
+        <div id="ratesBox"></div>
+      </div>
+      <div class="grid">
+        <div class="card panel span-6">
+          <h3>Profile &amp; household</h3>
+          <p class="sub">Your display name, and the people you can assign holdings to.</p>
+          <div class="field"><label class="sub">Display name</label><input class="inp" id="profName" maxlength="80"></div>
+          <div class="field"><label class="sub">Primary currency</label><div class="seg" id="primaryCcySeg"><button data-pc="USD">$ USD</button><button data-pc="INR">₹ INR</button></div></div>
+          <label class="sub" style="font-weight:600;font-size:12px">Household members</label>
+          <div class="chips" id="ownerChips"></div>
+          <form id="ownerForm" class="controls"><input class="inp" id="ownerInput" maxlength="40" placeholder="Add a person, e.g. Thyagu" style="flex:1"><button class="btn sm" type="submit">Add</button></form>
+        </div>
+        <div class="card panel span-6">
+          <h3>Backup &amp; import</h3>
+          <p class="sub">Import the JSON backup from the prototype dashboard (Settings → Export JSON there), or export your vault any time.</p>
+          <div class="controls">
+            <label class="btn primary">Import backup (JSON)<input type="file" accept=".json" data-import hidden></label>
+            <button class="btn" data-act="export-json">Export JSON</button>
+            <button class="btn" data-act="export-csv">Export CSV</button>
+          </div>
+          <hr style="border:0;border-top:1px solid var(--border);margin:18px 0">
+          <h3>Danger zone</h3>
+          <p class="sub">Permanently delete every holding, snapshot and rate setting in your vault.</p>
+          <button class="btn danger" data-act="wipe">Delete all my data</button>
+        </div>
+      </div>
+    </section>
   </main>
 </div>
-
 <nav class="mobile-nav hidden" id="navMobile"></nav>
 
 <dialog id="dlg"><form class="dlg" id="dlgForm" method="dialog">
@@ -335,7 +250,6 @@
     <button type="submit" class="btn primary" id="dlgSave">Save</button>
   </div>
 </form></dialog>
-
 <div class="toast" id="toast"></div>
 <div class="saving" id="saving">Saving…</div>
 

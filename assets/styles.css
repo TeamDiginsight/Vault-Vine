@@ -212,20 +212,22 @@ dialog::backdrop{background:rgba(10,14,25,.5);backdrop-filter:blur(2px)}
 .banner-userbox .iconbtn:hover{background:rgba(255,255,255,.2);color:#fff}
 
 /* ---------- auth screen ---------- */
-.auth{min-height:100vh;display:grid;grid-template-columns:1.1fr 1fr;background:var(--bg)}
-.auth-hero{background:linear-gradient(135deg,#003d82 0%,#0066cc 25%,#0099ff 50%,#00d4ff 75%,#0099ff 100%);color:#fff;padding:48px;display:flex;flex-direction:column;justify-content:space-between;position:relative;overflow:hidden}
+.auth{height:100vh;display:grid;grid-template-columns:1fr 1fr;background:var(--bg);overflow:hidden}
+.auth-hero{background:linear-gradient(135deg,#003d82 0%,#0066cc 25%,#0099ff 50%,#00d4ff 75%,#0099ff 100%);color:#fff;display:flex;flex-direction:column;justify-content:space-between;position:relative;overflow:hidden;padding:0}
 .auth-hero h2{font-size:40px;line-height:1.1;margin:0 0 14px;letter-spacing:-.02em;max-width:460px}
 .auth-hero p{opacity:.85;max-width:420px;font-size:15px;margin:0}
 .auth-hero .brand{color:#fff;padding:0;font-size:18px}
 .auth-hero .brand .logo{background:rgba(255,255,255,.16)}
-.auth-hero .points{display:grid;gap:12px;margin-top:28px;font-size:14px}
+.auth-hero-footer{padding:32px 40px}
+.auth-hero .points{display:grid;gap:12px;margin-top:20px;font-size:13px}
 .auth-hero .points div{display:flex;gap:10px;align-items:center;opacity:.92}
-.auth-hero .ring{position:absolute;right:-120px;bottom:-120px;width:420px;height:420px;border-radius:50%;border:56px solid rgba(255,255,255,.06)}
-.auth-panel{display:grid;place-items:center;padding:32px 16px}
-.auth-card{width:min(400px,100%)}
-.auth-card h1{font-size:24px;margin-bottom:6px}
-.btn.google{width:100%;justify-content:center;padding:12px;font-size:15px;margin-top:22px}
-.divider{display:flex;align-items:center;gap:12px;color:var(--muted);font-size:12px;margin:20px 0}
+.copyright{font-size:12px;color:rgba(255,255,255,.6);margin-top:28px}
+.auth-panel{display:flex;align-items:center;justify-content:center;padding:32px;background:var(--bg);overflow-y:auto}
+.auth-card{width:min(360px,100%)}
+.auth-card h1{font-size:24px;margin:0 0 8px;font-weight:700}
+.auth-card .sub{margin-bottom:20px}
+.btn.google{width:100%;justify-content:center;padding:12px;font-size:15px;margin-top:20px}
+.divider{display:flex;align-items:center;gap:12px;color:var(--muted);font-size:12px;margin:18px 0}
 .divider::before,.divider::after{content:"";flex:1;height:1px;background:var(--border)}
 .auth-card .inp{padding:11px 12px;font-size:14px}
 .auth-card .btn.primary{width:100%;justify-content:center;padding:11px;margin-top:10px}
@@ -233,8 +235,8 @@ dialog::backdrop{background:rgba(10,14,25,.5);backdrop-filter:blur(2px)}
 .auth-msg.show{display:block}
 .auth-msg.ok{background:var(--accent-soft);color:var(--text)}
 .auth-msg.err{background:color-mix(in srgb,var(--neg) 12%,transparent);color:var(--neg)}
-.fine{font-size:12px;color:var(--muted);margin-top:22px;line-height:1.5}
-@media (max-width:820px){.auth{grid-template-columns:1fr}.auth-hero{padding:28px 20px}.auth-hero h2{font-size:28px}.auth-hero .points{display:none}}
+.fine{font-size:11px;color:var(--muted);margin-top:16px;line-height:1.5}
+@media (max-width:820px){.auth{grid-template-columns:1fr;height:auto;min-height:100vh}.auth-hero{min-height:40vh}.auth-hero-footer{padding:24px 28px}.auth-hero .points{display:none}.auth-panel{padding:24px 16px}}
 
 /* ---------- loader / setup ---------- */
 .loader{position:fixed;inset:0;display:grid;place-items:center;background:var(--bg);z-index:100;color:var(--muted);font-weight:600}
@@ -268,9 +270,7 @@ dialog::backdrop{background:rgba(10,14,25,.5);backdrop-filter:blur(2px)}
 .banner-close:hover{background:rgba(255,255,255,.3)}
 
 /* ---------- login page enhancements ---------- */
-.auth-hero-image{width:100%;height:100%;position:absolute;inset:0;object-fit:cover;opacity:.4;z-index:0}
-.auth-hero>*:not(.ring){position:relative;z-index:1}
-.auth-image-hero{background:linear-gradient(135deg,var(--brand-1) 0%,var(--brand-2) 100%);position:relative;overflow:hidden;min-height:300px;display:flex;align-items:center;justify-content:center}
+.auth-image-hero{flex:1;position:relative;overflow:hidden;display:flex;align-items:center;justify-content:center}
 .auth-image-blob{position:absolute;inset:0;background:url('data:image/svg+xml,%3Csvg viewBox="0 0 400 300" xmlns="http://www.w3.org/2000/svg"%3E%3Cdefs%3E%3ClinearGradient id="grad" x1="0%25" y1="0%25" x2="100%25" y2="100%25"%3E%3Cstop offset="0%25" style="stop-color:rgba(255,255,255,0.1);stop-opacity:1" /%3E%3Cstop offset="100%25" style="stop-color:rgba(255,255,255,0.05);stop-opacity:1" /%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width="400" height="300" fill="url(%23grad)"%3E%3C/rect%3E%3Ccircle cx="80" cy="60" r="40" fill="rgba(255,255,255,0.1)"%3E%3C/circle%3E%3Ccircle cx="320" cy="140" r="60" fill="rgba(255,255,255,0.08)"%3E%3C/circle%3E%3Cpath d="M50 150 Q100 120 150 140 T250 160" stroke="rgba(255,255,255,0.15)" stroke-width="2" fill="none"%3E%3C/path%3E%3Cpath d="M200 80 Q250 100 300 120" stroke="rgba(255,255,255,0.1)" stroke-width="3" fill="none"%3E%3C/path%3E%3C/svg%3E') no-repeat center/cover;opacity:.3}
 .auth-image-content{position:relative;z-index:1;text-align:center;color:#fff;padding:40px;max-width:500px}
 .auth-image-content .emoji{font-size:60px;margin-bottom:16px;display:block}

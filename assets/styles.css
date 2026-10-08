@@ -181,6 +181,13 @@ dialog::backdrop{background:rgba(10,14,25,.5);backdrop-filter:blur(2px)}
 .banner-text h2{margin:0;font-size:14px;font-weight:600;letter-spacing:-.01em}
 .banner-text p{margin:2px 0 0;font-size:12px;opacity:.85}
 .banner-close{display:none}
+.banner-userbox{border-top:0;padding:8px 12px;margin-top:0;flex:0 0 auto;background:rgba(255,255,255,.15);border-radius:10px;gap:8px}
+.banner-userbox .avatar{width:36px;height:36px;background:rgba(255,255,255,.25);color:#fff}
+.banner-userbox .who{color:#fff;font-size:13px}
+.banner-userbox .who b{color:#fff}
+.banner-userbox .who span{color:rgba(255,255,255,.85)}
+.banner-userbox .iconbtn{color:rgba(255,255,255,.85)}
+.banner-userbox .iconbtn:hover{background:rgba(255,255,255,.2);color:#fff}
 
 /* ---------- auth screen ---------- */
 .auth{min-height:100vh;display:grid;grid-template-columns:1.1fr 1fr;background:var(--bg)}

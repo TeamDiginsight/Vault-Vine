@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Vault & Vine - Portfolio Management</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: #f8f9fc;
+      color: #1a2332;
+    }
+
+    .auth-container {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    /* LEFT SIDE - PROFESSIONAL HERO */
+    .auth-hero {
+      background: linear-gradient(135deg, #0f2a4d 0%, #1a3a5c 50%, #0d1f38 100%);
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      padding: 60px 50px;
+      color: white;
+      overflow: hidden;
+    }
+
+    .auth-hero::before {
+      content: '';
+      position: absolute;
+      top: -50%;
+      right: -50%;
+      width: 600px;
+      height: 600px;
+      background: radial-gradient(circle, rgba(76, 175, 255, 0.1) 0%, transparent 70%);
+      border-radius: 50%;
+      pointer-events: none;
+    }
+
+    .auth-hero::after {
+      content: '';
+      position: absolute;
+      bottom: -30%;
+      left: -20%;
+      width: 400px;
+      height: 400px;
+      background: radial-gradient(circle, rgba(76, 175, 255, 0.08) 0%, transparent 70%);
+      border-radius: 50%;
+      pointer-events: none;
+    }
+
+    .hero-content {
+      position: relative;
+      z-index: 1;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+
+    .hero-logo {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 40px;
+      font-size: 24px;
+    }
+
+    .hero-logo-icon {
+      width: 40px;
+      height: 40px;
+      background: rgba(76, 175, 255, 0.2);
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+    }
+
+    .hero-logo-text {
+      font-weight: 700;
+      letter-spacing: -0.5px;
+    }
+
+    .hero-logo-text .amp {
+      color: #4caff0;
+    }
+
+    .hero-title {
+      font-size: 42px;
+      font-weight: 700;
+      line-height: 1.2;
+      margin-bottom: 20px;
+      letter-spacing: -1px;
+    }
+
+    .hero-description {
+      font-size: 16px;
+      opacity: 0.85;
+      line-height: 1.6;
+      max-width: 450px;
+      margin-bottom: 40px;
+    }
+
+    .hero-features {
+      display: grid;
+      gap: 16px;
+    }
+
+    .feature-item {
+      display: flex;
+      gap: 12px;
+      align-items: flex-start;
+      font-size: 14px;
+      opacity: 0.9;
+    }
+
+    .feature-icon {
+      font-size: 18px;
+      flex-shrink: 0;
+      margin-top: 2px;
+    }
+
+    .hero-footer {
+      text-align: left;
+      border-top: 1px solid rgba(255, 255, 255, 0.1);
+      padding-top: 30px;
+      font-size: 12px;
+      opacity: 0.6;
+    }
+
+    /* RIGHT SIDE - SIGN IN FORM */
+    .auth-form-section {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 50px 40px;
+      background: #ffffff;
+    }
+
+    .auth-form {
+      width: 100%;
+      max-width: 380px;
+    }
+
+    .form-header {
+      margin-bottom: 40px;
+    }
+
+    .form-header h1 {
+      font-size: 32px;
+      font-weight: 700;
+      margin-bottom: 12px;
+      color: #0f2a4d;
+    }
+
+    .form-header p {
+      font-size: 14px;
+      color: #7a8fa6;
+      line-height: 1.5;
+    }
+
+    .form-group {
+      margin-bottom: 20px;
+    }
+
+    .form-input {
+      width: 100%;
+      padding: 12px 16px;
+      border: 1px solid #d4dcec;
+      border-radius: 8px;
+      font-size: 14px;
+      font-family: inherit;
+      transition: all 0.3s ease;
+      background: #f8f9fc;
+    }
+
+    .form-input:focus {
+      outline: none;
+      background: #ffffff;
+      border-color: #4caff0;
+      box-shadow: 0 0 0 3px rgba(76, 175, 255, 0.1);
+    }
+
+    .form-input::placeholder {
+      color: #a0b0c0;
+    }
+
+    .btn {
+      width: 100%;
+      padding: 12px 16px;
+      border: none;
+      border-radius: 8px;
+      font-size: 15px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      font-family: inherit;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, #4caff0 0%, #2190d5 100%);
+      color: white;
+      margin-bottom: 12px;
+      box-shadow: 0 4px 12px rgba(76, 175, 255, 0.25);
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 16px rgba(76, 175, 255, 0.35);
+    }
+
+    .btn-google {
+      background: white;
+      color: #1a2332;
+      border: 1px solid #d4dcec;
+      margin-bottom: 16px;
+    }
+
+    .btn-google:hover {
+      background: #f8f9fc;
+      border-color: #4caff0;
+    }
+
+    .divider {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin: 20px 0;
+      font-size: 13px;
+      color: #a0b0c0;
+    }
+
+    .divider::before,
+    .divider::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: #d4dcec;
+    }
+
+    .footer-text {
+      font-size: 11px;
+      color: #a0b0c0;
+      line-height: 1.6;
+      margin-top: 20px;
+      text-align: center;
+    }
+
+    .footer-text a {
+      color: #4caff0;
+      text-decoration: none;
+    }
+
+    /* RESPONSIVE */
+    @media (max-width: 1024px) {
+      .auth-container {
+        grid-template-columns: 1fr;
+      }
+
+      .auth-hero {
+        display: none;
+      }
+
+      .auth-form-section {
+        min-height: 100vh;
+      }
+
+      .auth-form {
+        max-width: 420px;
+      }
+    }
+
+    /* ANIMATIONS */
+    @keyframes slideIn {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .auth-form {
+      animation: slideIn 0.5s ease;
+    }
+  </style>
+</head>
+<body>
+  <div class="auth-container">
+    <!-- LEFT SIDE -->
+    <div class="auth-hero">
+      <div class="hero-content">
+        <div class="hero-logo">
+          <div class="hero-logo-icon">🌱</div>
+          <div class="hero-logo-text">Vault <span class="amp">&</span> Vine</div>
+        </div>
+
+        <h1 class="hero-title">Your wealth, guarded and growing.</h1>
+
+        <p class="hero-description">
+          Track your entire financial portfolio in one place. Stocks, retirement, deposits, property, and precious metals—across US and India.
+        </p>
+
+        <div class="hero-features">
+          <div class="feature-item">
+            <div class="feature-icon">🔒</div>
+            <div>Private to your login — your data stays secure</div>
+          </div>
+          <div class="feature-item">
+            <div class="feature-icon">💱</div>
+            <div>Live USD ⇄ INR conversion with real-time rates</div>
+          </div>
+          <div class="feature-item">
+            <div class="feature-icon">📊</div>
+            <div>Net worth trends, allocation, and liquidity analysis</div>
+          </div>
+          <div class="feature-item">
+            <div class="feature-icon">🏦</div>
+            <div>Multi-currency support for global portfolios</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="hero-footer">
+        © 2026 Vault & Vine. All rights reserved.
+      </div>
+    </div>
+
+    <!-- RIGHT SIDE -->
+    <div class="auth-form-section">
+      <div class="auth-form">
+        <div class="form-header">
+          <h1>Welcome back</h1>
+          <p>Sign in to access your portfolio. New here? We'll create your account.</p>
+        </div>
+
+        <form id="authForm">
+          <button type="button" class="btn btn-google" onclick="alert('Google Sign-in')">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="12" cy="12" r="10"></circle>
+            </svg>
+            Continue with Google
+          </button>
+
+          <div class="divider">or</div>
+
+          <div class="form-group">
+            <input
+              type="email"
+              class="form-input"
+              placeholder="you@example.com"
+              required
+            >
+          </div>
+
+          <button type="submit" class="btn btn-primary">
+            Email me a sign-in link
+          </button>
+
+          <div class="footer-text">
+            Your data is encrypted and stored securely.
+            <a href="#">Privacy Policy</a> •
+            <a href="#">Terms of Service</a>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</body>
+</html>
